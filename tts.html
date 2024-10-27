@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TTS Kerajaan Melayu Hindu Buddha</title>
+    <style>
+        :root {
+            --primary-color: #4F46E5;
+            --secondary-color: #818CF8;
+            --background-color: #F3F4F6;
+            --card-background: #FFFFFF;
+            --text-color: #1F2937;
+            --cell-size: clamp(24px, 5vw, 32px); /* Responsive cell size */
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            padding: 0.5rem;
+        }
+
+        .page-title {
+            text-align: center;
+            padding: 0.75rem;
+            color: var(--primary-color);
+            font-size: clamp(1.25rem, 4vw, 1.5rem);
+            font-weight: 600;
+        }
+
+        .container {
+            max-width: 100%;
+            margin: 0 auto;
+            padding: 0.5rem;
+            display: flex;
+            gap: 1rem;
+            flex-direction: column; /* Stack vertically on mobile */
+            align-items: center;
+        }
+
+        @media (min-width: 768px) {
+            .container {
+                flex-direction: row;
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 2rem;
+            }
+        }
+
+        .grid-container {
+            background: var(--card-background);
+            padding: 1rem;
+            border-radius: 1rem;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            width: 100%;
+            max-width: 100%;
+            overflow-x: auto;
+        }
+
+        @media (min-width: 768px) {
+            .grid-container {
+                flex: 1;
+                min-width: 300px;
+                max-width: 600px;
+            }
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(15, var(--cell-size));
+            gap: 1px;
+            background: #333;
+            padding: 0.5rem;
+            border-radius: 0.5rem;
+            margin: 0 auto;
+            width: max-content; /* Allow horizontal scroll on small screens */
+            max-width: 100%;
+            height: auto;
+            min-height: 350px;
+            max-height: 450px;
+            overflow-y: hidden;
+            -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+        }
+
+        .cell {
+            width: var(--cell-size);
+            height: var(--cell-size);
+            background: var(--card-background);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+
+        .cell input {
+            width: calc(var(--cell-size) - 4px);
+            height: calc(var(--cell-size) - 4px);
+            border: none;
+            text-align: center;
+            font-size: clamp(0.75rem, 2.5vw, 0.9rem);
+            text-transform: uppercase;
+            border-radius: 4px;
+            padding: 0;
+        }
+
+        .cell input:focus {
+            outline: 2px solid var(--primary-color);
+            background-color: #EEF2FF;
+        }
+
+        .number {
+            position: absolute;
+            top: 1px;
+            left: 1px;
+            font-size: clamp(0.5rem, 1.5vw, 0.6rem);
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        .black {
+            background: #333;
+        }
+
+        .clues {
+            background: var(--card-background);
+            padding: 1rem;
+            border-radius: 1rem;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            width: 100%;
+        }
+
+        @media (min-width: 768px) {
+            .clues {
+                flex: 1;
+                min-width: 300px;
+                max-width: 400px;
+            }
+        }
+
+        .clues h3 {
+            color: var(--primary-color);
+            margin-bottom: 0.75rem;
+            font-size: clamp(1.1rem, 3vw, 1.25rem);
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--secondary-color);
+        }
+
+        .clues ol {
+            padding-left: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .clues li {
+            margin-bottom: 0.5rem;
+            font-size: clamp(0.85rem, 2.5vw, 0.95rem);
+        }
+
+        .check-button {
+            width: 100%;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: clamp(0.5rem, 2vw, 0.75rem);
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-size: clamp(0.9rem, 2.5vw, 1rem);
+            font-weight: 500;
+            margin-top: 0.5rem;
+            transition: background-color 0.2s;
+        }
+
+        .check-button:hover {
+            background: var(--secondary-color);
+        }
+
+        .correct {
+            background: #34D399 !important;
+        }
+
+        .wrong {
+            background: #FB7185 !important;
+        }
+
+        .cell.correct input, .cell.wrong input {
+            background: transparent;
+        }
+
+        /* Add touch-friendly improvements */
+        @media (hover: none) {
+            .cell input {
+                -webkit-tap-highlight-color: transparent;
+            }
+
+            .check-button {
+                min-height: 44px; /* Minimum touch target size */
+                margin-bottom: 1rem; /* Add space for better touch areas */
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Rest of the HTML and JavaScript code remains the same -->
+    <h1 class="page-title">TTS Kerajaan Melayu Hindu Buddha</h1>
+    <div class="container">
+        <div class="grid-container">
+            <div class="grid" id="crossword"></div>
+            <button class="check-button" onclick="checkAnswers()">Periksa Jawaban</button>
+        </div>
+        <div class="clues">
+            <h3>Mendatar:</h3>
+            <ol>
+                <li>Nama kerajaan Hindu tertua di Indonesia</li>
+                <li>Nama raja Sriwijaya yang terkenal</li>
+                <li>Kerajaan Hindu di Kalimantan Timur</li>
+                <li>Prasasti peninggalan Kerajaan Kutai</li>
+                <li>Pusat pendidikan agama Buddha di Sriwijaya</li>
+            </ol>
+            <h3>Menurun:</h3>
+            <ol>
+                <li>Raja terbesar dari Kerajaan Kutai</li>
+                <li>Agama yang dianut Kerajaan Sriwijaya</li>
+                <li>Nama kitab yang berisi ajaran Buddha</li>
+                <li>Nama raja kedua Kerajaan Tarumanegara</li>
+                <li>Kerajaan Hindu-Buddha di Jawa Timur yang terkenal dengan Raja Jayabaya</li>
+            </ol>
+        </div>
+    </div>
+
+    <script>
+        // JavaScript code remains exactly the same as in your original file
+        const size = 15;
+        const grid = [];
+        const answers = {
+            across: {
+                1: "KUTAI",
+                2: "BALAPUTRADEWA",
+                3: "MARTADIPURA",
+                4: "YUPA",
+                5: "NALANDA"
+            },
+            down: {
+                1: "MULAWARMAN",
+                2: "BUDDHA",
+                3: "TRIPITAKA",
+                4: "PURNAWARMAN",
+                5: "KEDIRI"
+            }
+        };
+
+        const positions = {
+            across: {
+                1: {x: 1, y: 2},
+                2: {x: 1, y: 4},
+                3: {x: 1, y: 6},
+                4: {x: 5, y: 11},
+                5: {x: 7, y: 9}
+            },
+            down: {
+                1: {x: 2, y: 1},
+                2: {x: 6, y: 3},
+                3: {x: 8, y: 3},
+                4: {x: 13, y: 0},
+                5: {x: 10, y: 2}
+            }
+        };
+
+// Track current direction and position
+let currentDirection = 'across';
+let currentPosition = null;
+let lastClickTime = 0;
+let isDirectionLocked = false;  // New variable to track if direction is locked
+
+function createGrid() {
+    const container = document.getElementById('crossword');
+    
+    for(let i = 0; i < size; i++) {
+        grid[i] = [];
+        for(let j = 0; j < size; j++) {
+            const cell = document.createElement('div');
+            cell.className = 'cell';
+            cell.dataset.x = j;
+            cell.dataset.y = i;
+            
+            if (!isPartOfWord(j, i)) {
+                cell.classList.add('black');
+            } else {
+                const input = document.createElement('input');
+                input.maxLength = 1;
+                input.setAttribute('inputmode', 'text');
+                
+                // Enhanced focus handler
+                input.addEventListener('focus', (e) => {
+                    const x = parseInt(cell.dataset.x);
+                    const y = parseInt(cell.dataset.y);
+                    const now = Date.now();
+                    
+                    // Double-click handling
+                    if (currentPosition && 
+                        currentPosition.x === x && 
+                        currentPosition.y === y && 
+                        now - lastClickTime < 300) {
+                        // Only toggle direction if not locked
+                        if (!isDirectionLocked && isPartOfAcrossWord(x, y) && isPartOfDownWord(x, y)) {
+                            currentDirection = currentDirection === 'across' ? 'down' : 'across';
+                            if (currentDirection === 'down') {
+                                isDirectionLocked = true;  // Lock direction when switching to down
+                            }
+                        }
+                    } else {
+                        // Determine initial direction
+                        if (!isDirectionLocked) {
+                            if (isPartOfAcrossWord(x, y)) {
+                                currentDirection = 'across';
+                            } else if (isPartOfDownWord(x, y)) {
+                                currentDirection = 'down';
+                                isDirectionLocked = true;  // Lock direction when starting down
+                            }
+                        }
+                    }
+                    
+                    currentPosition = { x, y };
+                    lastClickTime = now;
+                    highlightWord(x, y);
+                });
+                
+                input.addEventListener('input', function(e) {
+                    this.value = this.value.toUpperCase();
+                    if (this.value.length === 1) {
+                        moveToNextCell(cell);
+                    }
+                });
+
+                input.addEventListener('keydown', function(e) {
+                    const x = parseInt(cell.dataset.x);
+                    const y = parseInt(cell.dataset.y);
+
+                    switch(e.key) {
+                        case 'ArrowRight':
+                            e.preventDefault();
+                            if (!isDirectionLocked && isPartOfAcrossWord(x, y)) {
+                                currentDirection = 'across';
+                                moveTo(x + 1, y);
+                            }
+                            break;
+                        case 'ArrowLeft':
+                            e.preventDefault();
+                            if (!isDirectionLocked && isPartOfAcrossWord(x, y)) {
+                                currentDirection = 'across';
+                                moveTo(x - 1, y);
+                            }
+                            break;
+                        case 'ArrowDown':
+                            e.preventDefault();
+                            if (isPartOfDownWord(x, y)) {
+                                currentDirection = 'down';
+                                isDirectionLocked = true;  // Lock direction when moving down
+                                moveTo(x, y + 1);
+                            }
+                            break;
+                        case 'ArrowUp':
+                            e.preventDefault();
+                            if (isPartOfDownWord(x, y)) {
+                                currentDirection = 'down';
+                                isDirectionLocked = true;  // Lock direction when moving up
+                                moveTo(x, y - 1);
+                            }
+                            break;
+                        case 'Backspace':
+                            if (this.value === '') {
+                                e.preventDefault();
+                                moveToPreviousCell(cell);
+                            }
+                            break;
+                        case 'Enter':
+                            // Toggle direction lock
+                            isDirectionLocked = !isDirectionLocked;
+                            break;
+                        case 'Tab':
+                            e.preventDefault();
+                            moveToNextWord(x, y);
+                            break;
+                    }
+                });
+                
+                cell.appendChild(input);
+            }
+            
+            // Add numbers to cells (rest of the code remains the same)
+            for (const direction in positions) {
+                for (const num in positions[direction]) {
+                    if (positions[direction][num].x === j && positions[direction][num].y === i) {
+                        const number = document.createElement('div');
+                        number.className = 'number';
+                        number.textContent = num;
+                        cell.appendChild(number);
+                    }
+                }
+            }
+            
+            container.appendChild(cell);
+            grid[i][j] = cell;
+        }
+    }
+}
+
+// New helper functions to check word direction
+function isPartOfAcrossWord(x, y) {
+    for (const num in positions.across) {
+        const pos = positions.across[num];
+        const word = answers.across[num];
+        if (y === pos.y && x >= pos.x && x < pos.x + word.length) {
+            return true;
+        }
+    }
+    return false;
+}
+
+function isPartOfDownWord(x, y) {
+    for (const num in positions.down) {
+        const pos = positions.down[num];
+        const word = answers.down[num];
+        if (x === pos.x && y >= pos.y && y < pos.y + word.length) {
+            return true;
+        }
+    }
+    return false;
+}
+
+function highlightWord(x, y) {
+    // Remove previous highlights
+    document.querySelectorAll('.cell').forEach(cell => {
+        cell.classList.remove('highlighted', 'current-cell');
+    });
+    
+    // Find and highlight the current word
+    let wordFound = false;
+    
+    // First try current direction
+    for (const num in positions[currentDirection]) {
+        const pos = positions[currentDirection][num];
+        const word = answers[currentDirection][num];
+        
+        if (currentDirection === 'across') {
+            if (y === pos.y && x >= pos.x && x < pos.x + word.length) {
+                highlightCells(pos.x, pos.y, word.length, true);
+                wordFound = true;
+                break;
+            }
+        } else {
+            if (x === pos.x && y >= pos.y && y < pos.y + word.length) {
+                highlightCells(pos.x, pos.y, word.length, false);
+                wordFound = true;
+                break;
+            }
+        }
+    }
+    
+    // If no word found in current direction, try the other direction
+    if (!wordFound) {
+        const otherDirection = currentDirection === 'across' ? 'down' : 'across';
+        for (const num in positions[otherDirection]) {
+            const pos = positions[otherDirection][num];
+            const word = answers[otherDirection][num];
+            
+            if (otherDirection === 'across') {
+                if (y === pos.y && x >= pos.x && x < pos.x + word.length) {
+                    highlightCells(pos.x, pos.y, word.length, true);
+                    currentDirection = otherDirection;
+                    break;
+                }
+            } else {
+                if (x === pos.x && y >= pos.y && y < pos.y + word.length) {
+                    highlightCells(pos.x, pos.y, word.length, false);
+                    currentDirection = otherDirection;
+                    break;
+                }
+            }
+        }
+    }
+    
+    // Highlight current cell
+    const currentCell = grid[y][x];
+    if (currentCell) {
+        currentCell.classList.add('current-cell');
+    }
+}
+function moveToNextWord(currentX, currentY) {
+    let found = false;
+    let nextWord = null;
+    
+    // Look for the next starting position
+    for (const direction in positions) {
+        for (const num in positions[direction]) {
+            const pos = positions[direction][num];
+            if (!found) {
+                if (pos.y > currentY || (pos.y === currentY && pos.x > currentX)) {
+                    nextWord = { x: pos.x, y: pos.y };
+                    found = true;
+                    break;
+                }
+            }
+        }
+        if (found) break;
+    }
+    
+    // If no next word found, go back to first word
+    if (!nextWord) {
+        for (const direction in positions) {
+            for (const num in positions[direction]) {
+                nextWord = positions[direction][num];
+                found = true;
+                break;
+            }
+            if (found) break;
+        }
+    }
+    
+    if (nextWord) {
+        currentDirection = 'across';
+        moveTo(nextWord.x, nextWord.y);
+    }
+}
+
+function moveToNextCell(currentCell) {
+    const x = parseInt(currentCell.dataset.x);
+    const y = parseInt(currentCell.dataset.y);
+    
+    if (currentDirection === 'across') {
+        moveTo(x + 1, y);
+    } else {
+        moveTo(x, y + 1);
+    }
+}
+
+function moveToPreviousCell(currentCell) {
+    const x = parseInt(currentCell.dataset.x);
+    const y = parseInt(currentCell.dataset.y);
+    
+    if (currentDirection === 'across') {
+        moveTo(x - 1, y);
+    } else {
+        moveTo(x, y - 1);
+    }
+}
+
+function moveTo(x, y) {
+    if (x >= 0 && x < size && y >= 0 && y < size) {
+        const nextCell = grid[y][x];
+        if (nextCell && !nextCell.classList.contains('black')) {
+            const input = nextCell.querySelector('input');
+            if (input) {
+                input.focus();
+                currentPosition = { x, y };
+                highlightWord(x, y);
+            }
+        }
+    }
+}
+
+function highlightCells(startX, startY, length, isAcross) {
+    for (let i = 0; i < length; i++) {
+        const cell = isAcross ? grid[startY][startX + i] : grid[startY + i][startX];
+        if (cell) {
+            cell.classList.add('highlighted');
+        }
+    }
+}
+
+// Add enhanced styles
+const newStyles = `
+.highlighted {
+    background-color: #E0E7FF !important;
+    border: 2px solid #818CF8 !important;
+}
+.highlighted input {
+    background-color: #E0E7FF !important;
+}
+.current-cell {
+    background-color: #C7D2FE !important;
+    border: 2px solid #4F46E5 !important;
+}
+.current-cell input {
+    background-color: #C7D2FE !important;
+}
+.cell input:focus {
+    outline: none !important;
+    background-color: #C7D2FE !important;
+}
+`;
+
+// Add the styles to the document
+const styleSheet = document.createElement("style");
+styleSheet.innerText = newStyles;
+document.head.appendChild(styleSheet);
+
+        function isPartOfWord(x, y) {
+            for (const direction in positions) {
+                for (const num in positions[direction]) {
+                    const pos = positions[direction][num];
+                    const word = answers[direction][num];
+                    
+                    if (direction === 'across') {
+                        if (y === pos.y && x >= pos.x && x < pos.x + word.length) {
+                            return true;
+                        }
+                    } else {
+                        if (x === pos.x && y >= pos.y && y < pos.y + word.length) {
+                            return true;
+                        }
+                    }
+                }
+            }
+            return false;
+        }
+
+        function getWordFromGrid(direction, number) {
+            let userWord = '';
+            const pos = positions[direction][number];
+            const word = answers[direction][number];
+            
+            try {
+                if (direction === 'across') {
+                    for (let i = 0; i < word.length; i++) {
+                        const cell = grid[pos.y][pos.x + i];
+                        if (cell && cell.querySelector('input')) {
+                            userWord += cell.querySelector('input').value || '';
+                        }
+                    }
+                } else {
+                    for (let i = 0; i < word.length; i++) {
+                        const cell = grid[pos.y + i][pos.x];
+                        if (cell && cell.querySelector('input')) {
+                            userWord += cell.querySelector('input').value || '';
+                        }
+                    }
+                }
+            } catch (error) {
+                console.error(`Error getting word for ${direction} ${number}:`, error);
+                return '';
+            }
+            
+            return userWord.toUpperCase();
+        }
+
+        function checkAnswers() {
+            document.querySelectorAll('.cell').forEach(cell => {
+                cell.classList.remove('correct', 'wrong');
+            });
+
+            for (const direction in answers) {
+                for (const num in answers[direction]) {
+                    const pos = positions[direction][num];
+                    const correctWord = answers[direction][num];
+                    const userWord = getWordFromGrid(direction, num);
+                    
+                    if (userWord) {
+                        const isCorrect = userWord === correctWord;
+                        const length = correctWord.length;
+                        
+                        for (let i = 0; i < length; i++) {
+                            const cell = direction === 'across' 
+                                ? grid[pos.y][pos.x + i]
+                                : grid[pos.y + i][pos.x];
+                            
+                            if (cell && !cell.classList.contains('black')) {
+                                cell.classList.add(isCorrect ? 'correct' : 'wrong');
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        createGrid();
+    </script>
+</body>
+</html>
